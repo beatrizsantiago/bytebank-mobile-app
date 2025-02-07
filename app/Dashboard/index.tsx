@@ -1,11 +1,10 @@
-import { Text, ScrollView } from 'react-native';
+import Jumbotron from './components/Jumbotron';
+import Styled from './styled';
 
 const Dashboard = () => (
-  <ScrollView>
-    <Text>
-      Hello Dashboard!
-    </Text>
-  </ScrollView>
+  <Styled.Scroll>
+    <Jumbotron />
+  </Styled.Scroll>
 );
 
 export default Dashboard;
