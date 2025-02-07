@@ -1,6 +1,22 @@
 import { Image, ImageSourcePropType } from 'react-native';
 import styled from 'styled-components/native';
 
+type Props = {
+  icon: ImageSourcePropType,
+  title: string,
+  description: string,
+};
+
+const FeatureItem = ({
+  icon, title, description
+}: Props) => (
+  <Box>
+    <Image source={icon} style={{ width: 73 }} />
+    <Title>{title}</Title>
+    <Description>{description}</Description>
+  </Box>
+);
+
 const Box = styled.View`
   padding: 16px;
   margin-bottom: 16px;
@@ -21,21 +37,5 @@ const Description = styled.Text`
   font-weight: 400;
   text-align: center;
 `;
-
-type Props = {
-  icon: ImageSourcePropType,
-  title: string,
-  description: string,
-};
-
-const FeatureItem = ({
-  icon, title, description
-}: Props) => (
-  <Box>
-    <Image source={icon} style={{ width: 73 }} />
-    <Title>{title}</Title>
-    <Description>{description}</Description>
-  </Box>
-);
 
 export default FeatureItem;

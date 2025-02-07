@@ -1,6 +1,6 @@
 import styled from 'styled-components/native'
 
-const Scroll = styled.ScrollView`
+const Container = styled.View`
   padding: 24px 16px 0px 16px;
 `;
 
@@ -34,20 +34,10 @@ const ButtonsRow = styled.View`
   margin-top: 24px;
 `;
 
-const Subtitle = styled.Text`
-  color: ${props => props.theme.low.main};
-  font-size: 20px;
-  font-weight: 700;
-  text-align: center;
-  margin-top: 32px;
-  margin-bottom: 32px;
-`;
-
 export default {
-  Scroll,
+  Container,
   Header,
   Title,
   CenterContainer,
   ButtonsRow,
-  Subtitle,
 };
