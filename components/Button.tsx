@@ -1,6 +1,21 @@
 import styled from 'styled-components/native';
 import { TouchableOpacityProps } from 'react-native';
 
+type Props = TouchableOpacityProps & {
+  title: string,
+  outlined?: boolean,
+};
+
+const ButtonComponent = ({
+  title, outlined = false, ...rest
+}:Props) => (
+  <Button outlined={outlined} {...rest}>
+    <TextButton outlined={outlined}>
+      {title}
+    </TextButton>
+  </Button>
+);
+
 const Button = styled.TouchableOpacity`
   background-color: ${({ theme, outlined }) => outlined ? 'transparent' : theme.low.main};
   border: ${({ theme, outlined }) => outlined ? `2px solid ${theme.low.main}` : 'none'};
@@ -18,20 +33,5 @@ const TextButton = styled.Text`
   text-align: center;
   color: ${({ theme, outlined }) => outlined ? theme.low.main : theme.high.main};
 `;
-
-type Props = TouchableOpacityProps & {
-  title: string,
-  outlined?: boolean,
-};
-
-const ButtonComponent = ({
-  title, outlined = false, ...rest
-}:Props) => (
-  <Button outlined={outlined} {...rest}>
-    <TextButton outlined={outlined}>
-      {title}
-    </TextButton>
-  </Button>
-);
 
 export default ButtonComponent;
