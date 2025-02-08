@@ -10,14 +10,14 @@ const Input = ({ label, ...rest }:Props) => {
   return (
     <View>
       <Label>{label}</Label>
-      <Field {...rest} />
+      <Field {...rest} disabled={rest.editable === false} />
     </View>
   );
 };
 
 const Field = styled(TextInput)`
   border: 1px solid ${({ theme }) => theme.gray['200']};
-  background-color: ${({ theme }) => theme.high.main};
+  background-color: ${({ theme, disabled }) => disabled ? theme.gray.light : theme.high.main};
   border-radius: 8px;
   padding: 12px;
   margin-bottom: 24px;
