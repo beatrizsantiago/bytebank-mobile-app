@@ -45,12 +45,12 @@ const Start = () => {
           <Styled.ButtonsRow>
             <Button
               title="Criar conta"
-              onPress={() => navigation.navigate('Tabs')}
+              onPress={() => navigation.navigate('Registration')}
             />
 
             <Button
               title="Já tenho conta"
-              onPress={() => navigation.navigate('Tabs')}
+              onPress={() => navigation.navigate('Login')}
               outlined
             />
           </Styled.ButtonsRow>

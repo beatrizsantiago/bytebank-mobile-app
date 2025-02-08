@@ -7,7 +7,7 @@ const Container = styled.View`
 const Header = styled.View`
   background-color: ${props => props.theme.low.main};
   padding: 10px;
-  height: 94px;
+  height: 80px;
   display: flex;
   justify-content: center;
   align-items: center;
