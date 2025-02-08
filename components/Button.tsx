@@ -1,24 +1,31 @@
-import styled from 'styled-components/native';
 import { TouchableOpacityProps } from 'react-native';
+import styled from 'styled-components/native';
+import theme from '@/theme';
 
 type Props = TouchableOpacityProps & {
   title: string,
   outlined?: boolean,
+  color?: 'primary' | 'secondary';
 };
 
+const COLORS = {
+  primary: theme.primary.main,
+  secondary: theme.secondary.main,
+}
+
 const ButtonComponent = ({
-  title, outlined = false, ...rest
+  title, color, outlined = false, ...rest
 }:Props) => (
-  <Button outlined={outlined} {...rest}>
-    <TextButton outlined={outlined}>
+  <Button outlined={outlined} color={color ? COLORS[color] : theme.low.main} {...rest}>
+    <TextButton outlined={outlined} color={color ? COLORS[color] : theme.low.main}>
       {title}
     </TextButton>
   </Button>
 );
 
 const Button = styled.TouchableOpacity`
-  background-color: ${({ theme, outlined }) => outlined ? 'transparent' : theme.low.main};
-  border: ${({ theme, outlined }) => outlined ? `2px solid ${theme.low.main}` : 'none'};
+  background-color: ${({ theme, outlined, color }) => outlined ? 'transparent' : color};
+  border: ${({ theme, outlined, color }) => outlined ? `2px solid ${color}` : 'none'};
   width: 47%;
   height: 48px;
   border-radius: 8px;
@@ -31,7 +38,7 @@ const TextButton = styled.Text`
   font-size: 16px;
   font-weight: 700;
   text-align: center;
-  color: ${({ theme, outlined }) => outlined ? theme.low.main : theme.high.main};
+  color: ${({ theme, outlined, color }) => outlined ? color : theme.high.main};
 `;
 
 export default ButtonComponent;
