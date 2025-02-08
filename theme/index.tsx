@@ -17,6 +17,7 @@ const theme = {
     medium: "#CBCBCB",
     dark: "#444444",
     '100': "#F8F8F8",
+    '200': "#DEE9EA",
     '600': "#767676",
   },
   low: {
