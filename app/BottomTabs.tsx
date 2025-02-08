@@ -1,9 +1,9 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import Entypo from '@expo/vector-icons/Entypo';
+import BottomTabBar from '@/components/BottomTabBar';
 
 import DashboardScreen from './Dashboard';
 import TransactionsScreen from './Transactions';
+import AccountScreen from './Account';
 
 import theme from '../theme';
 
@@ -11,6 +11,7 @@ const Tab = createBottomTabNavigator();
 
 const BottomTabs = () => (
   <Tab.Navigator
+    tabBar={(props) => <BottomTabBar {...props} />}
     screenOptions={{
       animation: 'fade',
       headerShown: false,
@@ -20,16 +21,14 @@ const BottomTabs = () => (
     <Tab.Screen
       name="Dashboard"
       component={DashboardScreen}
-      options={{
-        tabBarIcon: () => <MaterialIcons name="dashboard" size={24} />,
-      }}
     />
     <Tab.Screen
-      name="Transações"
+      name="Transactions"
       component={TransactionsScreen}
-      options={{
-        tabBarIcon: () => <Entypo name="list" size={24} />,
-      }}
+    />
+    <Tab.Screen
+      name="Account"
+      component={AccountScreen}
     />
   </Tab.Navigator>
 );
