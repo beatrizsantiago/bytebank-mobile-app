@@ -24,10 +24,12 @@ const ButtonComponent = ({
 );
 
 const Button = styled.TouchableOpacity`
-  background-color: ${({ theme, outlined, color }) => outlined ? 'transparent' : color};
-  border: ${({ theme, outlined, color }) => outlined ? `2px solid ${color}` : 'none'};
-  width: 47%;
+  background-color: ${({ outlined, color }) => outlined ? 'transparent' : color};
+  border: ${({ outlined, color }) => outlined ? `2px solid ${color}` : 'none'};
+  flex: 1;
+  width: 100%;
   height: 48px;
+  padding: 8px;
   border-radius: 8px;
   display: flex;
   justify-content: center;
