@@ -2,12 +2,16 @@ import { useEffect } from 'react';
 import { useFonts } from 'expo-font';
 import { ThemeProvider } from 'styled-components';
 import { createStackNavigator } from '@react-navigation/stack';
+import theme from '@/theme';
+import Header from '@/components/Header';
+
 import * as SplashScreen from 'expo-splash-screen';
 import 'react-native-reanimated';
 
-import StartScreen from '@/app/Start';
-import BottomTabs from '@/app/BottomTabs';
-import theme from '@/theme';
+import StartScreen from './Start';
+import LoginScreen from './Login';
+import RegistrationScreen from './Registration';
+import BottomTabs from './BottomTabs';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -33,12 +37,14 @@ export default function RootLayout() {
       <Stack.Navigator
         screenOptions={{
           animation: 'fade',
-          headerShown: false,
-          cardStyle: { backgroundColor: theme.high.main },
+          cardStyle: { backgroundColor: theme.gray['100'] },
+          header: (props) => <Header {...props} />,
         }}
       >
-        <Stack.Screen name="Start" component={StartScreen} />
-        <Stack.Screen name="Tabs" component={BottomTabs} />
+        <Stack.Screen name="Start" component={StartScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Registration" component={RegistrationScreen} />
+        <Stack.Screen name="Tabs" component={BottomTabs} options={{ headerShown: false }} />
       </Stack.Navigator>
     </ThemeProvider>
   );
