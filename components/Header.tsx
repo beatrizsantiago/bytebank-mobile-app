@@ -1,6 +1,6 @@
 import { getHeaderTitle } from '@react-navigation/elements';
 import { StackHeaderProps } from '@react-navigation/stack';
-import { Image, Text, TouchableOpacity, View } from 'react-native';
+import { Image, TouchableOpacity } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import styled from 'styled-components/native';
 import theme from '@/theme';
