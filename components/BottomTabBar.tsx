@@ -57,7 +57,7 @@ const BottomTabBar = ({ state, navigation }:BottomTabBarProps) => {
 const Bar = styled.View`
   flex-direction: row;
   justify-content: space-between;
-  height: 80px;
+  height: 65px;
   background-color: ${({ theme }) => theme.primary.main};
 `;
 
