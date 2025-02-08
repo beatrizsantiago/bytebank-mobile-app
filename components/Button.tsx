@@ -29,6 +29,7 @@ const Button = styled.TouchableOpacity`
   flex: 1;
   width: 100%;
   height: 48px;
+  min-height: 48px;
   padding: 8px;
   border-radius: 8px;
   display: flex;
