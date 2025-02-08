@@ -32,6 +32,7 @@ const ButtonsRow = styled.View`
   flex-direction: row;
   justify-content: space-between;
   margin-top: 24px;
+  gap: 16px;
 `;
 
 export default {
