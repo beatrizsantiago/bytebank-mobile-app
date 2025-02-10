@@ -1,14 +1,34 @@
+import { useState } from 'react';
 import { Image } from 'react-native';
+import { useAuthContext } from '@/context/Auth';
 import { useNavigation } from '@react-navigation/native';
-import Styled from './styled';
+import Checkbox from 'expo-checkbox';
 import Input from '@/components/Input';
 import PasswordInput from '@/components/PasswordInput';
-import Checkbox from 'expo-checkbox';
 import theme from '@/theme';
 import Button from '@/components/Button';
 
+import Styled from './styled';
+
 const Registration = () => {
   const navigation = useNavigation();
+
+  const { signUp } = useAuthContext();
+
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [privacyChecked, setPrivacyChecked] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const onSignUpPress = async () => {
+    setLoading(true);
+    await signUp({ name, email, password });
+    navigation.navigate('Tabs');
+    setLoading(false);
+  };
+
+  const disableButton = !name || !email || !password || !privacyChecked;
 
   return (
     <Styled.Scroll>
@@ -26,15 +46,27 @@ const Registration = () => {
       <Input
         label="Nome"
         placeholder="Digite seu nome completo"
+        value={name}
+        onChangeText={setName}
       />
       <Input
         label="E-mail"
         placeholder="Digite seu email"
+        value={email}
+        onChangeText={setEmail}
+        inputMode="email"
       />
-      <PasswordInput />
+      <PasswordInput
+        value={password}
+        onChangeText={setPassword}
+      />
 
       <Styled.CheckBoxContainer>
-        <Checkbox color={theme.secondary.main} />
+        <Checkbox
+          color={theme.secondary.main}
+          value={privacyChecked}
+          onValueChange={setPrivacyChecked}
+        />
         <Styled.CheckboxLabel>
           Li e estou ciente quanto às condições de tratamento dos meus dados
           conforme descrito na Política de Privacidade do banco.
@@ -45,7 +77,9 @@ const Registration = () => {
         <Button
           title="Criar conta"
           color="secondary"
-          onPress={() => navigation.navigate('Tabs')}
+          onPress={onSignUpPress}
+          disabled={disableButton}
+          loading={loading}
         />
       </Styled.ButtonBox>
     </Styled.Scroll>

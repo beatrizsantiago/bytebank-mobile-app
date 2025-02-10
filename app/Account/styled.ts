@@ -4,6 +4,13 @@ const Container = styled.View`
   padding: 16px;
 `;
 
+const Header = styled.View`
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+`;
+
 const Title = styled.Text`
   font-size: 24px;
   font-weight: bold;
@@ -18,6 +25,7 @@ const ImageBox = styled.View`
 
 export default {
   Container,
+  Header,
   Title,
   ImageBox,
 };

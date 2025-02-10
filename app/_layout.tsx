@@ -4,6 +4,7 @@ import { ThemeProvider } from 'styled-components';
 import { createStackNavigator } from '@react-navigation/stack';
 import theme from '@/theme';
 import Header from '@/components/Header';
+import { AuthProvider } from '@/context/Auth';
 
 import * as SplashScreen from 'expo-splash-screen';
 import 'react-native-reanimated';
@@ -33,19 +34,21 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      <Stack.Navigator
-        screenOptions={{
-          animation: 'fade',
-          cardStyle: { backgroundColor: theme.gray['100'] },
-          header: (props) => <Header {...props} />,
-        }}
-      >
-        <Stack.Screen name="Start" component={StartScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Registration" component={RegistrationScreen} />
-        <Stack.Screen name="Tabs" component={BottomTabs} options={{ headerShown: false }} />
-      </Stack.Navigator>
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider theme={theme}>
+        <Stack.Navigator
+          screenOptions={{
+            animation: 'fade',
+            cardStyle: { backgroundColor: theme.gray['100'] },
+            header: (props) => <Header {...props} />,
+          }}
+        >
+          <Stack.Screen name="Start" component={StartScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Registration" component={RegistrationScreen} />
+          <Stack.Screen name="Tabs" component={BottomTabs} options={{ headerShown: false }} />
+        </Stack.Navigator>
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
