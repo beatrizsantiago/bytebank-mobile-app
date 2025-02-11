@@ -1,11 +1,11 @@
-import { Image } from 'react-native';
+import { useState } from 'react';
+import { Alert, Image } from 'react-native';
 import { useAuthContext } from '@/context/Auth';
 import { useNavigation } from '@react-navigation/native';
 import Styled from './styled';
 import Input from '@/components/Input';
 import PasswordInput from '@/components/PasswordInput';
 import Button from '@/components/Button';
-import { useState } from 'react';
 
 const Login = () => {
   const navigation = useNavigation();
@@ -20,8 +20,12 @@ const Login = () => {
 
   const onLoginPress = async () => {
     setLoading(true);
-    await login({ email, password });
-    navigation.navigate('Tabs');
+    const success = await login({ email, password });
+    if (success) {
+      navigation.navigate('Tabs');
+    } else {
+      Alert.alert('Oops!', 'Usuário ou senha inválidos');
+    }
     setLoading(false);
   }
 
