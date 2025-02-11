@@ -1,21 +1,21 @@
 import { useState } from 'react';
-import { Image, TouchableOpacity } from 'react-native';
+import { Image, TouchableOpacity, Alert } from 'react-native';
 import { useAuthContext } from '@/context/Auth';
-import { auth } from '@/firebase/config';
 import { useNavigation } from '@react-navigation/native';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
 import PasswordInput from '@/components/PasswordInput';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import useUpdateUserName from '@/hooks/useUpdateUserName';
 
 import Styled from './styled'
 
 const Account = () => {
   const navigation = useNavigation();
 
-  const user = auth.currentUser;
-  
-  const { logout } = useAuthContext();
+  const { logout, user } = useAuthContext();
+
+  const { updateName } = useUpdateUserName();
   
   const [name, setName] = useState(user?.displayName || '');
   const [password, setPassword] = useState('');
@@ -23,6 +23,15 @@ const Account = () => {
   const onLogoutPress = () => {
     logout();
     navigation.navigate('Start');
+  };
+
+  const onSavePress = async () => {
+    const success = await updateName(name);
+    if (success) {
+      Alert.alert('Tudo certo!', 'Nome alterado com sucesso.');
+    } else {
+      Alert.alert('Oops!', 'Não foi possível alterar o nome.');
+    }
   };
 
   const enableSaveButton = name !== user?.displayName && password.length > 0;
@@ -57,6 +66,7 @@ const Account = () => {
         title="Salvar alterações"
         color="primary"
         disabled={!enableSaveButton}
+        onPress={onSavePress}
       />
 
       <Styled.ImageBox>
