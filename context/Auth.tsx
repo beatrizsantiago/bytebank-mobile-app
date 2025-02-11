@@ -4,8 +4,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   UserCredential,
-  updateProfile,
 } from 'firebase/auth';
+import useUpdateUserName from '@/hooks/useUpdateUserName';
 
 type SignUpProps = {
   name: string,
@@ -20,7 +20,7 @@ type LoginProps = {
 
 interface IAuthContext {
   isAuthenticated: boolean;
-  user: UserCredential | null;
+  user: UserCredential['user'] | null;
   signUp: (params:SignUpProps) => Promise<boolean>;
   login: (params:LoginProps) => Promise<boolean>;
   logout: () => void;
@@ -30,26 +30,18 @@ const AuthContext = createContext<IAuthContext | undefined>(undefined);
 
 export const AuthProvider = ({ children }:{ children: React.ReactNode }):JSX.Element => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<UserCredential | null>(null);
+  const [user, setUser] = useState<UserCredential['user'] | null>(null);
 
-  const updateUserName = (name:string) => {
-    const user = auth.currentUser;
-    if (user) {
-      updateProfile(user, { displayName: name });
-      return true;
-    } else {
-      return false;
-    };
-  };
+  const { updateName } = useUpdateUserName();
 
   const signUp = async ({ name, email, password }:SignUpProps) => {
     try {
-      const userCredential = await createUserWithEmailAndPassword(
+      const credentials = await createUserWithEmailAndPassword(
         auth, email, password,
       );
 
-      updateUserName(name);
-      setUser(userCredential);
+      updateName(name);
+      setUser(credentials.user);
       setIsAuthenticated(true);
       return true;
     } catch (error) {
@@ -59,11 +51,11 @@ export const AuthProvider = ({ children }:{ children: React.ReactNode }):JSX.Ele
 
   const login = async ({ email, password }:LoginProps) => {
     try {
-      const userCredential = await signInWithEmailAndPassword(
+      const credentials = await signInWithEmailAndPassword(
         auth, email, password,
       );
 
-      setUser(userCredential);
+      setUser(credentials.user);
       setIsAuthenticated(true);
       return true;
     } catch (error) {
@@ -74,7 +66,7 @@ export const AuthProvider = ({ children }:{ children: React.ReactNode }):JSX.Ele
   const logout = () => {
     auth.signOut();
     setUser(null);
-    setIsAuthenticated(false);
+    setIsAuthenticated(true);
   };
 
   const value = {
