@@ -2,9 +2,10 @@ import { useEffect } from 'react';
 import { useFonts } from 'expo-font';
 import { ThemeProvider } from 'styled-components';
 import { createStackNavigator } from '@react-navigation/stack';
+import { AuthProvider, useAuthContext } from '@/context/Auth';
+import { useNavigation } from 'expo-router';
 import theme from '@/theme';
 import Header from '@/components/Header';
-import { AuthProvider } from '@/context/Auth';
 
 import * as SplashScreen from 'expo-splash-screen';
 import 'react-native-reanimated';
@@ -17,6 +18,33 @@ import BottomTabs from './BottomTabs';
 SplashScreen.preventAutoHideAsync();
 
 const Stack = createStackNavigator();
+
+const Routes = () => {
+  const { isAuthenticated } = useAuthContext();
+
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigation.navigate('Tabs');
+    }
+  }, [isAuthenticated]);
+
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        animation: 'fade',
+        cardStyle: { backgroundColor: theme.gray['100'] },
+        header: (props) => <Header {...props} />,
+      }}
+    >
+      <Stack.Screen name="Start" component={StartScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Registration" component={RegistrationScreen} />
+      <Stack.Screen name="Tabs" component={BottomTabs} options={{ headerShown: false }} />
+    </Stack.Navigator>
+  );
+};
 
 export default function RootLayout() {
   const [loaded] = useFonts({
@@ -36,18 +64,7 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <ThemeProvider theme={theme}>
-        <Stack.Navigator
-          screenOptions={{
-            animation: 'fade',
-            cardStyle: { backgroundColor: theme.gray['100'] },
-            header: (props) => <Header {...props} />,
-          }}
-        >
-          <Stack.Screen name="Start" component={StartScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Registration" component={RegistrationScreen} />
-          <Stack.Screen name="Tabs" component={BottomTabs} options={{ headerShown: false }} />
-        </Stack.Navigator>
+        <Routes />
       </ThemeProvider>
     </AuthProvider>
   );
