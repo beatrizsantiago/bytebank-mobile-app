@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Image } from 'react-native';
+import { Alert, Image } from 'react-native';
 import { useAuthContext } from '@/context/Auth';
 import { useNavigation } from '@react-navigation/native';
 import Checkbox from 'expo-checkbox';
@@ -23,8 +23,14 @@ const Registration = () => {
 
   const onSignUpPress = async () => {
     setLoading(true);
-    await signUp({ name, email, password });
-    navigation.navigate('Tabs');
+    
+    const success = await signUp({ name, email, password });
+
+    if (success) {
+      navigation.navigate('Tabs');
+    } else {
+      Alert.alert('Oops!', 'Erro ao criar conta! Tente novamente mais tarde.');
+    }
     setLoading(false);
   };
 
