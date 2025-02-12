@@ -1,25 +1,24 @@
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { money } from '@/utils/format';
+import { Timestamp } from 'firebase/firestore';
+import { TouchableOpacity } from 'react-native';
+import { KIND_LABEL } from '@/utils/transactionKinds';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import styled from 'styled-components/native';
+import theme from '@/theme';
 
-interface StatementItemProps {
-  kind: 'DEPOSIT' | 'DOC_TED' | 'CURRENCY_EXCHANGE' | 'LEASING';
-  value: number;
-  date: string;
-};
-
-const KIND_LABEL = {
-  DEPOSIT: 'Depósito',
-  DOC_TED: 'Transferência',
-  CURRENCY_EXCHANGE: 'Câmbio de Moeda',
-  LEASING: 'Empréstimo e Financiamento',
+type StatementItemProps = {
+  kind: 'DEPOSIT' | 'DOC_TED' | 'CURRENCY_EXCHANGE' | 'LEASING',
+  value: number,
+  attach: string,
+  date: Timestamp,
 };
 
 const StatementItem = ({
-  kind, value, date,
+  kind, value, attach, date,
 }:StatementItemProps) => {
-  const formattedMonth = format(parseISO(date), 'MMMM', { locale: ptBR });
+  const formattedMonth = format(date.toDate(), 'MMMM', { locale: ptBR });
   const month = formattedMonth[0].toUpperCase() + formattedMonth.substring(1);
 
   return (
@@ -31,13 +30,23 @@ const StatementItem = ({
       <Content>
         <KindLabel>{KIND_LABEL[kind]}</KindLabel>
         <DateLabel>
-          {format(parseISO(date), 'dd/MM/yyyy')}
+          {format(date.toDate(), 'dd/MM/yyyy')}
         </DateLabel>
       </Content>
 
-      <MoneyLabel>
-        {money(value)}
-      </MoneyLabel>
+      <Row>
+        <MoneyLabel>
+          {money(value)}
+        </MoneyLabel>
+        <IconsRow>
+          <TouchableOpacity>
+            <Ionicons name="document-attach-outline" size={24} color={theme.primary.main} />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Ionicons name="trash" size={24} color={theme.error.main} />
+          </TouchableOpacity>
+        </IconsRow>
+      </Row>
     </Box>
   );
 };
@@ -78,6 +87,19 @@ const DateLabel = styled.Text`
 const MoneyLabel = styled.Text`
   font-size: 16px;
   font-weight: 600;
+`;
+
+const Row = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const IconsRow = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
 `;
 
 export default StatementItem;
