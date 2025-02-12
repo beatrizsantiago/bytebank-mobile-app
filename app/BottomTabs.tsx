@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useAuthContext } from '@/context/Auth';
+import { TransactionProvider } from '@/context/Transactions';
 import BottomTabBar from '@/components/BottomTabBar';
 
 import DashboardScreen from './Dashboard';
@@ -24,27 +25,29 @@ const BottomTabs = () => {
   }, [isAuthenticated]);
 
   return (
-    <Tab.Navigator
-      tabBar={(props) => <BottomTabBar {...props} />}
-      screenOptions={{
-        animation: 'fade',
-        headerShown: false,
-        sceneStyle: { backgroundColor: theme.secondary.light },
-      }}
-    >
-      <Tab.Screen
-        name="Dashboard"
-        component={DashboardScreen}
-      />
-      <Tab.Screen
-        name="Transactions"
-        component={TransactionsScreen}
-      />
-      <Tab.Screen
-        name="Account"
-        component={AccountScreen}
-      />
-    </Tab.Navigator>
+    <TransactionProvider>
+      <Tab.Navigator
+        tabBar={(props) => <BottomTabBar {...props} />}
+        screenOptions={{
+          animation: 'fade',
+          headerShown: false,
+          sceneStyle: { backgroundColor: theme.secondary.light },
+        }}
+      >
+        <Tab.Screen
+          name="Dashboard"
+          component={DashboardScreen}
+        />
+        <Tab.Screen
+          name="Transactions"
+          component={TransactionsScreen}
+        />
+        <Tab.Screen
+          name="Account"
+          component={AccountScreen}
+        />
+      </Tab.Navigator>
+    </TransactionProvider>
   );
 };
 
