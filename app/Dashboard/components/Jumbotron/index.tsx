@@ -3,6 +3,7 @@ import { TouchableOpacity, Image } from 'react-native';
 import { formatDate } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { money } from '@/utils/format';
+import { useTransactionContext } from '@/context/Transactions';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import theme from '@/theme';
 
@@ -11,9 +12,9 @@ import Styled from './styled';
 const Jumbotron = () => {
   const [showBalance, setShowBalance] = useState(false)
 
-  const today = new Date();
+  const { balance } = useTransactionContext();
 
-  const balance = 1000;
+  const today = new Date();
 
   return (
     <Styled.Container>
