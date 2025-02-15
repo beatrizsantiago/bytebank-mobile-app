@@ -1,48 +1,79 @@
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { money } from '@/utils/format';
-import { Timestamp } from 'firebase/firestore';
-import { TouchableOpacity } from 'react-native';
+import { TransactionType, useTransactionContext } from '@/context/Transactions';
+import { Alert, TouchableOpacity } from 'react-native';
 import { KIND_LABEL } from '@/utils/transactionKinds';
+import { useNavigation } from '@react-navigation/native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import styled from 'styled-components/native';
 import theme from '@/theme';
 
 type StatementItemProps = {
-  kind: 'DEPOSIT' | 'DOC_TED' | 'CURRENCY_EXCHANGE' | 'LEASING',
-  value: number,
-  attach: string,
-  date: Timestamp,
+  transaction: TransactionType,
 };
 
 const StatementItem = ({
-  kind, value, attach, date,
+  transaction,
 }:StatementItemProps) => {
-  const formattedMonth = format(date.toDate(), 'MMMM', { locale: ptBR });
+  const navigation = useNavigation();
+
+  const { deleteTransaction, refetchData } = useTransactionContext();
+
+  const formattedMonth = format(transaction.date.toDate(), 'MMMM', { locale: ptBR });
   const month = formattedMonth[0].toUpperCase() + formattedMonth.substring(1);
 
+  const onDeleteClick = async () => {
+    const success = await deleteTransaction(transaction.id);
+    if (success) {
+      await refetchData();
+      Alert.alert('Sucesso!', 'Transação deletada com sucesso!');
+    } else {
+      Alert.alert('Oops!', 'Erro ao deletar a transação!');
+    }
+  };
+
+  const showDeleteAlert = () =>
+    Alert.alert(
+      'Atenção!',
+      `Tem certeza que deseja deletar a transação ${KIND_LABEL[transaction.kind]} no valor de ${money(transaction.value)}?`,
+      [
+        {
+          text: 'Não',
+          style: 'cancel',
+        },
+        {
+          text: 'Sim',
+          onPress: onDeleteClick,
+        },
+      ],
+      {
+        cancelable: true,
+      },
+    );
+
   return (
-    <Box>
+    <Box onPress={() => navigation.navigate('TransactionForm', { transaction })}>
       <MonthLabel>
         {month}
       </MonthLabel>
 
       <Content>
-        <KindLabel>{KIND_LABEL[kind]}</KindLabel>
+        <KindLabel>{KIND_LABEL[transaction.kind]}</KindLabel>
         <DateLabel>
-          {format(date.toDate(), 'dd/MM/yyyy')}
+          {format(transaction.date.toDate(), 'dd/MM/yyyy')}
         </DateLabel>
       </Content>
 
       <Row>
         <MoneyLabel>
-          {money(value)}
+          {money(transaction.value)}
         </MoneyLabel>
         <IconsRow>
           <TouchableOpacity>
             <Ionicons name="document-attach-outline" size={24} color={theme.primary.main} />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={showDeleteAlert}>
             <Ionicons name="trash" size={24} color={theme.error.main} />
           </TouchableOpacity>
         </IconsRow>
