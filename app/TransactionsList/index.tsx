@@ -42,10 +42,7 @@ const TransactionsList = () => {
           {list.map((item) => (
             <StatementItem
               key={item.id}
-              kind={item.kind}
-              value={item.value}
-              attach={item.attach}
-              date={item.date}
+              transaction={item}
             />
           ))}
         </Styled.Scroll>
