@@ -24,3 +24,7 @@ export const currencyToFloat = (value:string) => {
   
   return parseFloat(numericValue);
 };
+
+export const floatToCurrency = (value:number) => {
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+};
