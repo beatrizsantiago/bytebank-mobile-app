@@ -1,5 +1,6 @@
 import { useState, useContext, createContext, useEffect } from 'react';
-import { auth, firestore } from '@/firebase/config';
+import { auth, firestore, storage } from '@/firebase/config';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import {
   Timestamp,
   addDoc,
@@ -13,21 +14,22 @@ import {
   getAggregateFromServer,
   sum,
 } from 'firebase/firestore';
+import * as DocumentPicker from 'expo-document-picker';
 
-type Kind = 'DEPOSIT' | 'DOC_TED' | 'CURRENCY_EXCHANGE' | 'LEASING';
+export type KindType = 'DEPOSIT' | 'DOC_TED' | 'CURRENCY_EXCHANGE' | 'LEASING';
 
 type TransactionType = {
   id: string,
-  kind: Kind,
+  kind: KindType,
   value: number,
   attach: string,
   date: Timestamp,
 };
 
 type TransactionDataType = {
-  kind: Kind,
+  kind: KindType,
   value: number,
-  attach: string,
+  attach: DocumentPicker.DocumentPickerAsset,
 };
 
 interface ITransactionContext {
@@ -52,8 +54,17 @@ export const TransactionProvider = ({ children }:{ children: React.ReactNode }):
 
   const addTransaction = async (transaction: TransactionDataType) => {
     try {
+      const response = await fetch(transaction.attach.uri);
+      const blob = await response.blob();
+      
+      const storageRef = ref(storage, `images/transaction-receipts/${Date.now()}_${transaction.attach.name}`);
+      await uploadBytes(storageRef, blob);
+      const url = await getDownloadURL(storageRef);
+  
       await addDoc(collection(firestore, 'transactions'), {
-        ...transaction,
+        kind: transaction.kind,
+        value: transaction.value,
+        attach: url,
         userId: user?.uid,
         date: Timestamp.now(),
       });
@@ -106,19 +117,19 @@ export const TransactionProvider = ({ children }:{ children: React.ReactNode }):
   const getBalance = async () => {
     setBalanceLoading(true);
     try {
-      const transactionsQuery = query(
-        collection(firestore, 'transactions'),
-        where('userId', '==', user?.uid)
-      );
+      // const transactionsQuery = query(
+      //   collection(firestore, 'transactions'),
+      //   where('userId', '==', user?.uid)
+      // );
 
-      const querySnapshot = await getAggregateFromServer(
-        transactionsQuery, {
-          total: sum('value'),
-        }
-      );
+      // const querySnapshot = await getAggregateFromServer(
+      //   transactionsQuery, {
+      //     total: sum('value'),
+      //   }
+      // );
 
-      const total = querySnapshot.data().total;
-      setBalance(total);
+      // const total = querySnapshot.data().total;
+      // setBalance(total);
       setBalanceLoading(false);
 
       return true;
