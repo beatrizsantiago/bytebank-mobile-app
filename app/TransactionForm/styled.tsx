@@ -53,6 +53,13 @@ const ButtonBox = styled.View`
   align-items: center;
 `;
 
+const AttachLabel = styled.Text`
+  font-size: 16px;
+  font-weight: 500;
+  margin-top: 16px;
+  text-align: center;
+`;
+
 export default {
   Scroll,
   Title,
@@ -62,4 +69,5 @@ export default {
   DocumentButton,
   TitleButton,
   ButtonBox,
+  AttachLabel,
 };
