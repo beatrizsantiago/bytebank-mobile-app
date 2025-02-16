@@ -60,6 +60,30 @@ const AttachLabel = styled.Text`
   text-align: center;
 `;
 
+const PreviousAttachBox = styled.TouchableOpacity`
+  padding: 8px;
+  border-radius: 8px;
+  flex-direction: row;
+  gap: 8px;
+`;
+
+const PreviousAttachLabel = styled.Text`
+  font-size: 16px;
+  font-weight: 500;
+  margin-top: 16px;
+  text-align: center;
+  color: ${({ theme }) => theme.low.main};
+`;
+
+const AttachViewLabel = styled.Text`
+  font-size: 16px;
+  font-weight: 500;
+  margin-top: 16px;
+  text-align: center;
+  color: ${({ theme }) => theme.primary.main};
+  text-decoration: underline;
+`;
+
 export default {
   Scroll,
   Title,
@@ -70,4 +94,7 @@ export default {
   TitleButton,
   ButtonBox,
   AttachLabel,
+  PreviousAttachBox,
+  PreviousAttachLabel,
+  AttachViewLabel,
 };

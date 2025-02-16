@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Picker } from '@react-native-picker/picker';
-import { Alert, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useTransactionContext, KindType } from '@/context/Transactions';
+import { Alert, Image, TouchableOpacity } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { useTransactionContext, KindType, TransactionType } from '@/context/Transactions';
 import { KIND_LIST } from '@/utils/transactionKinds';
-import { currencyToFloat, filename, formatCurrency } from '@/utils/format';
+import { currencyToFloat, filename, floatToCurrency, formatCurrency } from '@/utils/format';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
+import Modal from '@/components/Modal';
 import theme from '@/theme';
 import * as DocumentPicker from 'expo-document-picker';
 
@@ -15,12 +16,17 @@ import Styled from './styled';
 
 const TransactionForm = () => {
   const navigation = useNavigation();
+  const route = useRoute();
+
+  const transactionData:TransactionType | undefined = route.params?.transaction;
 
   const [attach, setAttach] = useState<DocumentPicker.DocumentPickerAsset | null>(null);
   const [kind, setKind] = useState<KindType>('DEPOSIT');
   const [value, setValue] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showAttach, setShowAttach] = useState(false);
 
-  const { addTransaction } = useTransactionContext();
+  const { addTransaction, updateTransaction, refetchData } = useTransactionContext();
 
   const balance = 0;
 
@@ -35,7 +41,7 @@ const TransactionForm = () => {
       return;
     }
 
-    if (!attach) {
+    if (!attach && !transactionData) {
       Alert.alert('Oops!', 'Anexe um recibo para a transação');
       return;
     }
@@ -47,18 +53,34 @@ const TransactionForm = () => {
       return;
     };
 
+    setLoading(true);
+
     const formattedValue = absValue * (kind === 'DEPOSIT' ? 1 : -1);
 
-    const success = await addTransaction({
-      value: formattedValue,
-      kind,
-      attach,
-    });
+    let success = null;
 
+    if (transactionData) {
+      success = await updateTransaction(transactionData.id, {
+        value: formattedValue,
+        kind,
+        attach,
+        attachUrl: transactionData.attachUrl,
+      });
+    } else if (attach) {
+      success = await addTransaction({
+        value: formattedValue,
+        kind,
+        attach,
+      });
+    }
+    
     if (success) {
+      await refetchData();
+      setLoading(false);
       navigation.goBack();
     } else {
       Alert.alert('Oops!', 'Erro ao salvar a transação!');
+      setLoading(false);
     }
   };
 
@@ -71,6 +93,13 @@ const TransactionForm = () => {
       setAttach(result.assets[0]);
     }
   };
+
+  useEffect(() => {
+    if (transactionData) {
+      setKind(transactionData.kind);
+      setValue(floatToCurrency(transactionData.value));
+    }
+  }, [])
 
   return (
     <Styled.Scroll>
@@ -115,11 +144,26 @@ const TransactionForm = () => {
           </Styled.AttachLabel>
         )}
 
+        {transactionData?.attachUrl && (
+          <Styled.PreviousAttachBox>
+            <Styled.PreviousAttachLabel>
+              Anexo anterior:
+            </Styled.PreviousAttachLabel>
+            <TouchableOpacity onPress={() => setShowAttach(true)}>
+              <Styled.AttachViewLabel>
+                visualizar
+              </Styled.AttachViewLabel>
+            </TouchableOpacity>
+          </Styled.PreviousAttachBox>
+        )}
+
         <Styled.ButtonBox>
           <Button
             title="Salvar"
             color="primary"
             onPress={onSavePress}
+            loading={loading}
+            disabled={loading}
           />
         </Styled.ButtonBox>
 
@@ -128,6 +172,19 @@ const TransactionForm = () => {
           style={{ width: 250, height: 200 }}
         />
       </Styled.GrayContainer>
+
+      {transactionData && (
+        <Modal
+          open={showAttach}
+          onClose={() => setShowAttach(false)}
+        >
+          <Image
+            source={{ uri: transactionData.attachUrl }}
+            style={{ width: '100%', aspectRatio: 2 / 1 }}
+            resizeMode="cover"
+          />
+        </Modal>
+      )}
     </Styled.Scroll>
   );
 };
