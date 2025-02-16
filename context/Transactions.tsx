@@ -18,11 +18,11 @@ import * as DocumentPicker from 'expo-document-picker';
 
 export type KindType = 'DEPOSIT' | 'DOC_TED' | 'CURRENCY_EXCHANGE' | 'LEASING';
 
-type TransactionType = {
+export type TransactionType = {
   id: string,
   kind: KindType,
   value: number,
-  attach: string,
+  attachUrl: string,
   date: Timestamp,
 };
 
@@ -32,14 +32,22 @@ type TransactionDataType = {
   attach: DocumentPicker.DocumentPickerAsset,
 };
 
+type UpdatedData = {
+  kind: KindType,
+  value: number,
+  attach: DocumentPicker.DocumentPickerAsset | null,
+  attachUrl: string,
+};
+
 interface ITransactionContext {
   list: TransactionType[],
   listLoading: boolean,
   balance: number,
   balanceLoading: boolean,
   addTransaction: (transaction: TransactionDataType) => Promise<boolean>,
-  updateTransaction: (id: string, transaction: TransactionDataType) => Promise<boolean>,
+  updateTransaction: (id: string, transaction: UpdatedData) => Promise<boolean>,
   deleteTransaction: (id: string) => Promise<boolean>,
+  refetchData: () => Promise<void>,
 };
 
 const user = auth.currentUser;
@@ -64,7 +72,7 @@ export const TransactionProvider = ({ children }:{ children: React.ReactNode }):
       await addDoc(collection(firestore, 'transactions'), {
         kind: transaction.kind,
         value: transaction.value,
-        attach: url,
+        attachUrl: url,
         userId: user?.uid,
         date: Timestamp.now(),
       });
@@ -74,10 +82,23 @@ export const TransactionProvider = ({ children }:{ children: React.ReactNode }):
     }
   };
 
-  const updateTransaction = async (id: string, transaction: TransactionDataType) => {
+  const updateTransaction = async (id: string, transaction: UpdatedData) => {
     try {
+      let url = transaction.attachUrl;
+
+      if (transaction.attach) {
+        const response = await fetch(transaction.attach.uri);
+        const blob = await response.blob();
+        
+        const storageRef = ref(storage, `images/transaction-receipts/${Date.now()}_${transaction.attach.name}`);
+        await uploadBytes(storageRef, blob);
+        url = await getDownloadURL(storageRef);
+      };
+
       await updateDoc(doc(firestore, 'transactions', id), {
-        ...transaction,
+        kind: transaction.kind,
+        value: transaction.value,
+        attachUrl: url,
       });
       return true;
     } catch (error) {
@@ -139,6 +160,11 @@ export const TransactionProvider = ({ children }:{ children: React.ReactNode }):
     }
   };
 
+  const refetchData = async () => {
+    await getTransactions();
+    await getBalance();
+  };
+
   useEffect(() => {
     getTransactions();
     getBalance();
@@ -152,6 +178,7 @@ export const TransactionProvider = ({ children }:{ children: React.ReactNode }):
     addTransaction,
     updateTransaction,
     deleteTransaction,
+    refetchData,
   };
 
   return (
