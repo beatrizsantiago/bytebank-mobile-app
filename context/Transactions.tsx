@@ -1,4 +1,4 @@
-import { useState, useContext, createContext, useEffect } from 'react';
+import { useState, useContext, createContext, useEffect, useCallback } from 'react';
 import { auth, firestore, storage } from '@/firebase/config';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import {
@@ -50,11 +50,12 @@ interface ITransactionContext {
   refetchData: () => Promise<void>,
 };
 
-const user = auth.currentUser;
-
 const TransactionContext = createContext<ITransactionContext | undefined>(undefined);
 
 export const TransactionProvider = ({ children }:{ children: React.ReactNode }):JSX.Element => {
+  const user = auth.currentUser;
+  const userId = user?.uid || '';
+
   const [list, setList] = useState<TransactionType[]>([]);
   const [listLoading, setListLoading] = useState(false);
   const [balance, setBalance] = useState(0);
@@ -73,7 +74,7 @@ export const TransactionProvider = ({ children }:{ children: React.ReactNode }):
         kind: transaction.kind,
         value: transaction.value,
         attachUrl: url,
-        userId: user?.uid,
+        userId,
         date: Timestamp.now(),
       });
       return true;
@@ -115,12 +116,12 @@ export const TransactionProvider = ({ children }:{ children: React.ReactNode }):
     }
   };
 
-  const getTransactions = async () => {
+  const getTransactions = useCallback(async () => {
     setListLoading(true);
     try {
       const transactionsQuery = query(
         collection(firestore, 'transactions'),
-        where('userId', '==', user?.uid)
+        where('userId', '==', userId)
       );
       
       const querySnapshot = await getDocs(transactionsQuery);
@@ -133,24 +134,22 @@ export const TransactionProvider = ({ children }:{ children: React.ReactNode }):
       setListLoading(false);
       return false;
     }
-  };
+  }, [userId]);
 
-  const getBalance = async () => {
+  const getBalance = useCallback(async () => {
     setBalanceLoading(true);
     try {
-      // const transactionsQuery = query(
-      //   collection(firestore, 'transactions'),
-      //   where('userId', '==', user?.uid)
-      // );
+      const transactionsQuery = query(
+        collection(firestore, "transactions"),
+        where("userId", "==", userId)
+      );
+      const querySnapshot = await getDocs(transactionsQuery);
 
-      // const querySnapshot = await getAggregateFromServer(
-      //   transactionsQuery, {
-      //     total: sum('value'),
-      //   }
-      // );
+      const totalValue = querySnapshot.docs.reduce((acc, doc) => (
+        acc + doc.data().value
+      ), 0);
 
-      // const total = querySnapshot.data().total;
-      // setBalance(total);
+      setBalance(totalValue);
       setBalanceLoading(false);
 
       return true;
@@ -158,7 +157,7 @@ export const TransactionProvider = ({ children }:{ children: React.ReactNode }):
       setBalanceLoading(false);
       return false;
     }
-  };
+  }, [userId]);
 
   const refetchData = async () => {
     await getTransactions();
@@ -168,7 +167,7 @@ export const TransactionProvider = ({ children }:{ children: React.ReactNode }):
   useEffect(() => {
     getTransactions();
     getBalance();
-  }, []);
+  }, [getTransactions, getBalance]);
 
   const value = {
     list,
