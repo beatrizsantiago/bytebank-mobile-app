@@ -1,6 +1,7 @@
 import { useState, useContext, createContext, useEffect, useCallback } from 'react';
 import { auth, firestore, storage } from '@/firebase/config';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { KIND_LABEL } from '@/utils/transactionKinds';
 import {
   Timestamp,
   addDoc,
@@ -11,44 +12,14 @@ import {
   query,
   updateDoc,
   where,
-  getAggregateFromServer,
-  sum,
 } from 'firebase/firestore';
-import * as DocumentPicker from 'expo-document-picker';
-
-export type KindType = 'DEPOSIT' | 'DOC_TED' | 'CURRENCY_EXCHANGE' | 'LEASING';
-
-export type TransactionType = {
-  id: string,
-  kind: KindType,
-  value: number,
-  attachUrl: string,
-  date: Timestamp,
-};
-
-type TransactionDataType = {
-  kind: KindType,
-  value: number,
-  attach: DocumentPicker.DocumentPickerAsset,
-};
-
-type UpdatedData = {
-  kind: KindType,
-  value: number,
-  attach: DocumentPicker.DocumentPickerAsset | null,
-  attachUrl: string,
-};
-
-interface ITransactionContext {
-  list: TransactionType[],
-  listLoading: boolean,
-  balance: number,
-  balanceLoading: boolean,
-  addTransaction: (transaction: TransactionDataType) => Promise<boolean>,
-  updateTransaction: (id: string, transaction: UpdatedData) => Promise<boolean>,
-  deleteTransaction: (id: string) => Promise<boolean>,
-  refetchData: () => Promise<void>,
-};
+import {
+  AnalysisData,
+  ITransactionContext,
+  TransactionDataType,
+  TransactionType,
+  UpdatedData,
+} from './types';
 
 const TransactionContext = createContext<ITransactionContext | undefined>(undefined);
 
@@ -60,6 +31,8 @@ export const TransactionProvider = ({ children }:{ children: React.ReactNode }):
   const [listLoading, setListLoading] = useState(false);
   const [balance, setBalance] = useState(0);
   const [balanceLoading, setBalanceLoading] = useState(false);
+  const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
+  const [analysisDataLoading, setAnalysisDataLoading] = useState(false);
 
   const addTransaction = async (transaction: TransactionDataType) => {
     try {
@@ -143,6 +116,7 @@ export const TransactionProvider = ({ children }:{ children: React.ReactNode }):
         collection(firestore, "transactions"),
         where("userId", "==", userId)
       );
+
       const querySnapshot = await getDocs(transactionsQuery);
 
       const totalValue = querySnapshot.docs.reduce((acc, doc) => (
@@ -159,14 +133,80 @@ export const TransactionProvider = ({ children }:{ children: React.ReactNode }):
     }
   }, [userId]);
 
+  const getFinancialAnalysisData = useCallback(async () => {
+    setAnalysisDataLoading(true);
+    try {
+      const transactionsQuery = query(
+        collection(firestore, "transactions"),
+        where("userId", "==", userId)
+      );
+
+      const querySnapshot = await getDocs(transactionsQuery);
+
+      const totalInvestmentFound = querySnapshot.docs.reduce((acc, doc) => (
+        doc.data().kind === 'INVESTMENT_FOUND' ? acc + doc.data().value : acc
+      ), 0);
+
+      const totalPublicContracts = querySnapshot.docs.reduce((acc, doc) => (
+        doc.data().kind === 'PUBLIC_CONTRACTS' ? acc + doc.data().value : acc
+      ), 0);
+
+      const totalPrivateRetirement = querySnapshot.docs.reduce((acc, doc) => (
+        doc.data().kind === 'PRIVATE_RETIREMENT' ? acc + doc.data().value : acc
+      ), 0);
+
+      const totalStockExchange = querySnapshot.docs.reduce((acc, doc) => (
+        doc.data().kind === 'STOCK_EXCHANGE' ? acc + doc.data().value : acc
+      ), 0);
+
+      const data = {
+        chartData: [
+          {
+            text: KIND_LABEL.INVESTMENT_FOUND,
+            value: totalInvestmentFound * -1,
+            color: '#2567F9',
+          },
+          {
+            text: KIND_LABEL.PUBLIC_CONTRACTS,
+            value: totalPublicContracts * -1,
+            color: '#8F3CFF',
+          },
+          {
+            text: KIND_LABEL.PRIVATE_RETIREMENT,
+            value: totalPrivateRetirement * -1,
+            color: '#FF3C82',
+          },
+          {
+            text: KIND_LABEL.STOCK_EXCHANGE,
+            value: totalStockExchange * -1,
+            color: '#F1823D',
+          },
+        ],
+        fixedIncome: (totalInvestmentFound + totalPublicContracts) * -1,
+        variableIncome: (totalPrivateRetirement + totalStockExchange) * -1,
+      };
+      
+      setAnalysisData(data);
+
+      setAnalysisDataLoading(false);
+
+      return true;
+    } catch (error) {
+      setAnalysisDataLoading(false);
+      return false;
+    }
+  }, [userId]);
+
   const refetchData = async () => {
     await getTransactions();
     await getBalance();
+    await getFinancialAnalysisData();
   };
 
   useEffect(() => {
     getTransactions();
     getBalance();
+    getFinancialAnalysisData();
   }, [getTransactions, getBalance]);
 
   const value = {
@@ -174,6 +214,8 @@ export const TransactionProvider = ({ children }:{ children: React.ReactNode }):
     listLoading,
     balance,
     balanceLoading,
+    analysisData,
+    analysisDataLoading,
     addTransaction,
     updateTransaction,
     deleteTransaction,
