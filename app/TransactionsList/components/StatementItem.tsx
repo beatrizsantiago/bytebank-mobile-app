@@ -1,10 +1,12 @@
+import { useState } from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { money } from '@/utils/format';
 import { TransactionType, useTransactionContext } from '@/context/Transactions';
-import { Alert, TouchableOpacity } from 'react-native';
+import { Alert, Image, TouchableOpacity } from 'react-native';
 import { KIND_LABEL } from '@/utils/transactionKinds';
 import { useNavigation } from '@react-navigation/native';
+import Modal from '@/components/Modal';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import styled from 'styled-components/native';
 import theme from '@/theme';
@@ -17,6 +19,8 @@ const StatementItem = ({
   transaction,
 }:StatementItemProps) => {
   const navigation = useNavigation();
+
+  const [showAttach, setShowAttach] = useState(false);
 
   const { deleteTransaction, refetchData } = useTransactionContext();
 
@@ -70,7 +74,7 @@ const StatementItem = ({
           {money(transaction.value)}
         </MoneyLabel>
         <IconsRow>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => setShowAttach(true)}>
             <Ionicons name="document-attach-outline" size={24} color={theme.primary.main} />
           </TouchableOpacity>
           <TouchableOpacity onPress={showDeleteAlert}>
@@ -78,6 +82,17 @@ const StatementItem = ({
           </TouchableOpacity>
         </IconsRow>
       </Row>
+      
+      <Modal
+        open={showAttach}
+        onClose={() => setShowAttach(false)}
+      >
+        <Image
+          source={{ uri: transaction.attachUrl }}
+          style={{ width: '100%', aspectRatio: 2 / 1 }}
+          resizeMode="cover"
+        />
+      </Modal>
     </Box>
   );
 };
