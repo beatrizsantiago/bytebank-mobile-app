@@ -19,6 +19,7 @@ const TransactionForm = () => {
   const route = useRoute();
 
   const transactionData:TransactionType | undefined = route.params?.transaction;
+  const isEditing = !!transactionData;
 
   const [attach, setAttach] = useState<DocumentPicker.DocumentPickerAsset | null>(null);
   const [kind, setKind] = useState<KindType>('DEPOSIT');
@@ -26,9 +27,12 @@ const TransactionForm = () => {
   const [loading, setLoading] = useState(false);
   const [showAttach, setShowAttach] = useState(false);
 
-  const { addTransaction, updateTransaction, refetchData } = useTransactionContext();
-
-  const balance = 0;
+  const {
+    addTransaction,
+    updateTransaction,
+    refetchData,
+    balance,
+  } = useTransactionContext();
 
   const onSavePress = async () => {
     if (!kind) {
@@ -104,7 +108,9 @@ const TransactionForm = () => {
   return (
     <Styled.Scroll>
       <Styled.Title>
-        Adicionar transação
+        {isEditing ? 'Editar' : 'Adicionar'}
+        {' '}
+        transação
       </Styled.Title>
 
       <Styled.BackButton onPress={() => navigation.goBack()}>
