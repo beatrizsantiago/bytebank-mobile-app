@@ -1,29 +1,54 @@
 import { PieChart } from 'react-native-gifted-charts';
 import { money } from '@/utils/format';
+import { useTransactionContext } from '@/context/Transactions'
+
 import Styled from './styled';
 
+const PIE_SLICE_COLORS:{ [key: string]: string } = {
+  INVESTMENT_FOUND: '#2567F9',
+  PUBLIC_CONTRACTS: '#8F3CFF',
+  PRIVATE_RETIREMENT: '#FF3C82',
+  STOCK_EXCHANGE: '#F1823D',
+}
+
 const FinancialAnalysis = () => {
-  const data = [{ value: 15 }, { value: 30 }, { value: 26 }, { value: 40 }];
+  const { analysisData } = useTransactionContext();
+
+  if (!analysisData) return null;
 
   return (
     <Styled.Container>
       <Styled.PixelBottomImage source={require('@/assets/images/icons/pixels.png')} />
       <Styled.PixelTopImage source={require('@/assets/images/icons/pixels.png')} />
 
-      <Styled.Title>Análise Financeira</Styled.Title>
+      <Styled.Title>Investimentos</Styled.Title>
 
       <Styled.MoneyBox>
-        <Styled.BoxLabel>Total depositado</Styled.BoxLabel>
-        <Styled.MoneyLabel>{money(1000)}</Styled.MoneyLabel>
+        <Styled.BoxLabel>Renda Fixa</Styled.BoxLabel>
+        <Styled.MoneyLabel>{money(analysisData.fixedIncome)}</Styled.MoneyLabel>
       </Styled.MoneyBox>
 
       <Styled.MoneyBox>
-        <Styled.BoxLabel>Total movimentado</Styled.BoxLabel>
-        <Styled.BoxLabel>Total movimentado</Styled.BoxLabel>
-        <Styled.MoneyLabel>{money(800)}</Styled.MoneyLabel>
+        <Styled.BoxLabel>Renda Variável</Styled.BoxLabel>
+        <Styled.MoneyLabel>{money(analysisData.variableIncome)}</Styled.MoneyLabel>
       </Styled.MoneyBox>
 
-      <PieChart data={data}/>
+      <Styled.ChartTitle>
+        Estatísticas
+      </Styled.ChartTitle>
+
+      <Styled.ChartContainer>
+        <Styled.ChartBox>
+          <PieChart data={analysisData.chartData} />
+        </Styled.ChartBox>
+
+        {analysisData.chartData.map((slice, index) => (
+          <Styled.Line key={index}>
+            <Styled.Dot color={slice.color} />
+            <Styled.LineLabel>{slice.text}</Styled.LineLabel>
+          </Styled.Line>
+        ))}
+      </Styled.ChartContainer>
     </Styled.Container>
   );
 };
