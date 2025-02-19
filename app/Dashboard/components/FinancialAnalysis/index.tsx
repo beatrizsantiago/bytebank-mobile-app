@@ -1,20 +1,14 @@
+import { ActivityIndicator } from 'react-native';
 import { PieChart } from 'react-native-gifted-charts';
 import { money } from '@/utils/format';
 import { useTransactionContext } from '@/context/Transactions'
 
 import Styled from './styled';
 
-const PIE_SLICE_COLORS:{ [key: string]: string } = {
-  INVESTMENT_FOUND: '#2567F9',
-  PUBLIC_CONTRACTS: '#8F3CFF',
-  PRIVATE_RETIREMENT: '#FF3C82',
-  STOCK_EXCHANGE: '#F1823D',
-}
-
 const FinancialAnalysis = () => {
   const { analysisData } = useTransactionContext();
 
-  if (!analysisData) return null;
+  if (!analysisData) return <ActivityIndicator />;
 
   return (
     <Styled.Container>
