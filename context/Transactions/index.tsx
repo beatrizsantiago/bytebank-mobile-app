@@ -12,6 +12,8 @@ import {
   query,
   updateDoc,
   where,
+  getAggregateFromServer,
+  sum,
 } from 'firebase/firestore';
 import {
   AnalysisData,
@@ -113,15 +115,13 @@ export const TransactionProvider = ({ children }:{ children: React.ReactNode }):
     setBalanceLoading(true);
     try {
       const transactionsQuery = query(
-        collection(firestore, "transactions"),
-        where("userId", "==", userId)
+        collection(firestore, 'transactions'),
+        where('userId', '==', userId)
       );
 
-      const querySnapshot = await getDocs(transactionsQuery);
+      const querySnapshot = await getAggregateFromServer(transactionsQuery, { total: sum('value') });
 
-      const totalValue = querySnapshot.docs.reduce((acc, doc) => (
-        acc + doc.data().value
-      ), 0);
+      const totalValue = querySnapshot.data().total;
 
       setBalance(totalValue);
       setBalanceLoading(false);
@@ -137,27 +137,45 @@ export const TransactionProvider = ({ children }:{ children: React.ReactNode }):
     setAnalysisDataLoading(true);
     try {
       const transactionsQuery = query(
-        collection(firestore, "transactions"),
-        where("userId", "==", userId)
+        collection(firestore, 'transactions'),
+        where('userId', '==', userId)
       );
 
-      const querySnapshot = await getDocs(transactionsQuery);
+      const investmentFoundQuery = query(
+        transactionsQuery,
+        where('kind', '==', 'INVESTMENT_FOUND')
+      );
+      const investmentFoundSnapshot = await getAggregateFromServer(
+        investmentFoundQuery, { total: sum('value') },
+      );
+      const totalInvestmentFound = investmentFoundSnapshot.data().total;
 
-      const totalInvestmentFound = querySnapshot.docs.reduce((acc, doc) => (
-        doc.data().kind === 'INVESTMENT_FOUND' ? acc + doc.data().value : acc
-      ), 0);
+      const publicContractsQuery = query(
+        transactionsQuery,
+        where('kind', '==', 'PUBLIC_CONTRACTS')
+      );
+      const publicContractsSnapshot = await getAggregateFromServer(
+        publicContractsQuery, { total: sum('value') },
+      );
+      const totalPublicContracts = publicContractsSnapshot.data().total;
 
-      const totalPublicContracts = querySnapshot.docs.reduce((acc, doc) => (
-        doc.data().kind === 'PUBLIC_CONTRACTS' ? acc + doc.data().value : acc
-      ), 0);
+      const privateRetirementQuery = query(
+        transactionsQuery,
+        where('kind', '==', 'PRIVATE_RETIREMENT')
+      );
+      const privateRetirementSnapshot = await getAggregateFromServer(
+        privateRetirementQuery, { total: sum('value') },
+      );
+      const totalPrivateRetirement = privateRetirementSnapshot.data().total;
 
-      const totalPrivateRetirement = querySnapshot.docs.reduce((acc, doc) => (
-        doc.data().kind === 'PRIVATE_RETIREMENT' ? acc + doc.data().value : acc
-      ), 0);
-
-      const totalStockExchange = querySnapshot.docs.reduce((acc, doc) => (
-        doc.data().kind === 'STOCK_EXCHANGE' ? acc + doc.data().value : acc
-      ), 0);
+      const stockExchangeQuery = query(
+        transactionsQuery,
+        where('kind', '==', 'STOCK_EXCHANGE')
+      );
+      const stockExchangeSnapshot = await getAggregateFromServer(
+        stockExchangeQuery, { total: sum('value') },
+      );
+      const totalStockExchange = stockExchangeSnapshot.data().total;
 
       const data = {
         chartData: [
