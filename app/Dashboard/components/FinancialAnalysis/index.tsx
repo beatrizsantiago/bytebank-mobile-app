@@ -10,6 +10,8 @@ const FinancialAnalysis = () => {
 
   if (!analysisData) return <ActivityIndicator />;
 
+  if (!analysisData.fixedIncome && !analysisData.variableIncome) return null;
+
   return (
     <Styled.Container>
       <Styled.PixelBottomImage source={require('@/assets/images/icons/pixels.png')} />
