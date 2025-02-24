@@ -1,4 +1,4 @@
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, FlatList, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTransactionContext } from '@/context/Transactions';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -11,7 +11,11 @@ import Styled from './styled';
 const TransactionsList = () => {
   const navigation = useNavigation();
 
-  const { list, listLoading } = useTransactionContext();
+  const {
+    list,
+    listLoading,
+    loadMoreTransactions,
+  } = useTransactionContext();
 
   return (
     <View>
@@ -28,25 +32,20 @@ const TransactionsList = () => {
             </Styled.IconButton>
           </Styled.IconsRow>
         </Styled.TopRow>
-
-        <Styled.SearchRow>
-          <Styled.SearchInput placeholder="Pesquisar" />
-          <Styled.SearchIcon name="search" size={24} />
-        </Styled.SearchRow>
       </Styled.Header>
-
-      {listLoading ? (
-        <ActivityIndicator />
-      ) : (
-        <Styled.Scroll>
-          {list.map((item) => (
-            <StatementItem
-              key={item.id}
-              transaction={item}
-            />
-          ))}
-        </Styled.Scroll>
-      )}
+      <Styled.List
+        data={list}
+        keyExtractor={(item) => item.id}
+        onEndReached={loadMoreTransactions}
+        onEndReachedThreshold={0.1}
+        ListFooterComponent={() => listLoading && <ActivityIndicator size="large" />}
+        renderItem={({ item }) => (
+          <StatementItem
+            key={item.id}
+            transaction={item}
+          />
+        )}
+      />
     </View>
   );
 };

@@ -51,4 +51,5 @@ export interface ITransactionContext {
   updateTransaction: (id: string, transaction: UpdatedData) => Promise<boolean>,
   deleteTransaction: (id: string) => Promise<boolean>,
   refetchData: () => Promise<void>,
+  loadMoreTransactions: () => Promise<boolean>,
 };

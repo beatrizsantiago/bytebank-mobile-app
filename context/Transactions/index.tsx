@@ -14,6 +14,10 @@ import {
   where,
   getAggregateFromServer,
   sum,
+  orderBy,
+  limit,
+  startAfter,
+  QueryDocumentSnapshot,
 } from 'firebase/firestore';
 import {
   AnalysisData,
@@ -25,11 +29,14 @@ import {
 
 const TransactionContext = createContext<ITransactionContext | undefined>(undefined);
 
+const LIMIT_PER_PAGE = 10;
+
 export const TransactionProvider = ({ children }:{ children: React.ReactNode }):JSX.Element => {
   const user = auth.currentUser;
   const userId = user?.uid || '';
 
   const [list, setList] = useState<TransactionType[]>([]);
+  const [last, setLast] = useState<QueryDocumentSnapshot | null>(null);
   const [listLoading, setListLoading] = useState(false);
   const [balance, setBalance] = useState(0);
   const [balanceLoading, setBalanceLoading] = useState(false);
@@ -94,22 +101,57 @@ export const TransactionProvider = ({ children }:{ children: React.ReactNode }):
   const getTransactions = useCallback(async () => {
     setListLoading(true);
     try {
-      const transactionsQuery = query(
+      let transactionsQuery = query(
         collection(firestore, 'transactions'),
-        where('userId', '==', userId)
+        where('userId', '==', userId),
+        orderBy('date', 'desc'),
+        limit(LIMIT_PER_PAGE),
       );
       
       const querySnapshot = await getDocs(transactionsQuery);
+      
+      const data = querySnapshot.docs.map((doc) => (
+        { id: doc.id, ...doc.data() }
+      )) as TransactionType[];
 
-      const data = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setList(data as TransactionType[]);
+      setList(data);
       setListLoading(false);
+      setLast(querySnapshot.docs[querySnapshot.docs.length - 1]);
       return true;
     } catch (error) {
       setListLoading(false);
       return false;
     }
   }, [userId]);
+
+  const loadMoreTransactions = async () => {
+    if (listLoading || !last) return false;
+    setListLoading(true);
+    try {
+      let transactionsQuery = query(
+        collection(firestore, 'transactions'),
+        where('userId', '==', userId),
+        orderBy('date', 'desc'),
+        limit(LIMIT_PER_PAGE),
+        startAfter(last),
+      );
+      
+      const querySnapshot = await getDocs(transactionsQuery);
+
+      const data = querySnapshot.docs.map((doc) => (
+        { id: doc.id, ...doc.data() }
+      )) as TransactionType[];
+
+      setList(current => [...current, ...data]);
+      setLast(querySnapshot.docs[querySnapshot.docs.length - 1]);
+      setListLoading(false);
+      return true;
+    } catch (error) {
+      console.error(error)
+      setListLoading(false);
+      return false;
+    }
+  };
 
   const getBalance = useCallback(async () => {
     setBalanceLoading(true);
@@ -238,6 +280,7 @@ export const TransactionProvider = ({ children }:{ children: React.ReactNode }):
     updateTransaction,
     deleteTransaction,
     refetchData,
+    loadMoreTransactions
   };
 
   return (
