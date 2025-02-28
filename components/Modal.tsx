@@ -7,24 +7,27 @@ import { Modal, TouchableOpacity } from 'react-native';
 type Props = {
   open: boolean,
   onClose: () => void,
+  title?: string,
   children: React.ReactNode,
 }
 
 const ModalComponent = ({
-  open, onClose, children,
+  open, onClose, title, children,
 }:Props) => (
   <Modal
     animationType="fade"
     transparent={true}
     visible={open}
-    onRequestClose={onClose}>
+    onRequestClose={onClose}
+  >
     <CenteredView>
       <ModalView>
-        <CloseBox>
+        <RowBox>
+          {title && <Title>{title}</Title>}
           <TouchableOpacity onPress={onClose}>
             <MaterialIcons name="close" size={32} color={theme.gray.main} />
           </TouchableOpacity>
-        </CloseBox>
+        </RowBox>
 
         {children}
       </ModalView>
@@ -40,6 +43,10 @@ const CenteredView = styled.View`
   padding: 16px;
 `;
 
+const Title = styled.Text`
+  font-size: 18px;
+`;
+
 const ModalView = styled.View`
   margin: 20px;
   background-color: white;
@@ -48,12 +55,13 @@ const ModalView = styled.View`
   align-items: center;
   width: 100%;
   overflow: hidden;
+  height: auto;
 `;
 
-const CloseBox = styled.View`
+const RowBox = styled.View`
   display: flex;
   flex-direction: row;
-  justify-content: flex-end;
+  justify-content: space-between;
   width: 100%;
 `;
 
