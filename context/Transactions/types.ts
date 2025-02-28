@@ -52,4 +52,13 @@ export interface ITransactionContext {
   deleteTransaction: (id: string) => Promise<boolean>,
   refetchData: () => Promise<void>,
   loadMoreTransactions: () => Promise<boolean>,
+  onFilterTransactions: () => Promise<boolean>,
+  startDate: Date | null,
+  setStartDate: React.Dispatch<React.SetStateAction<Date | null>>,
+  endDate: Date | null,
+  setEndDate: React.Dispatch<React.SetStateAction<Date | null>>,
+  kindsSelected: KindType[],
+  setKindsSelected: React.Dispatch<React.SetStateAction<KindType[]>>,
+  hasFilters: boolean,
+  clearFilters: () => void,
 };

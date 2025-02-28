@@ -1,4 +1,4 @@
-import { useState, useContext, createContext, useEffect, useCallback } from 'react';
+import { useState, useContext, createContext, useEffect, useCallback, useRef } from 'react';
 import { auth, firestore, storage } from '@/firebase/config';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { KIND_LABEL } from '@/utils/transactionKinds';
@@ -22,6 +22,7 @@ import {
 import {
   AnalysisData,
   ITransactionContext,
+  KindType,
   TransactionDataType,
   TransactionType,
   UpdatedData,
@@ -32,6 +33,8 @@ const TransactionContext = createContext<ITransactionContext | undefined>(undefi
 const LIMIT_PER_PAGE = 10;
 
 export const TransactionProvider = ({ children }:{ children: React.ReactNode }):JSX.Element => {
+  const initialized = useRef(false);
+
   const user = auth.currentUser;
   const userId = user?.uid || '';
 
@@ -42,6 +45,10 @@ export const TransactionProvider = ({ children }:{ children: React.ReactNode }):
   const [balanceLoading, setBalanceLoading] = useState(false);
   const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
   const [analysisDataLoading, setAnalysisDataLoading] = useState(false);
+  const [kindsSelected, setKindsSelected] = useState<KindType[]>([]);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [hasFilters, setHasFilters] = useState(false);
 
   const addTransaction = async (transaction: TransactionDataType) => {
     try {
@@ -116,7 +123,9 @@ export const TransactionProvider = ({ children }:{ children: React.ReactNode }):
 
       setList(data);
       setListLoading(false);
-      setLast(querySnapshot.docs[querySnapshot.docs.length - 1]);
+      if (querySnapshot.docs.length === 10) {
+        setLast(querySnapshot.docs[querySnapshot.docs.length - 1]);
+      }
       return true;
     } catch (error) {
       setListLoading(false);
@@ -143,11 +152,63 @@ export const TransactionProvider = ({ children }:{ children: React.ReactNode }):
       )) as TransactionType[];
 
       setList(current => [...current, ...data]);
-      setLast(querySnapshot.docs[querySnapshot.docs.length - 1]);
+      
+      if (querySnapshot.docs.length === 10) {
+        setLast(querySnapshot.docs[querySnapshot.docs.length - 1]);
+      } else {
+        setLast(null);
+      }
       setListLoading(false);
       return true;
     } catch (error) {
       console.error(error)
+      setListLoading(false);
+      return false;
+    }
+  };
+
+  const onFilterTransactions = async () => {
+    setListLoading(true);
+    try {
+      let initialQuery = collection(firestore, 'transactions');
+  
+      let constraints = [];
+  
+      if (startDate) {
+        constraints.push(where('date', '>=', Timestamp.fromDate(startDate)));
+      }
+      if (endDate) {
+        constraints.push(where('date', '<=', Timestamp.fromDate(endDate)));
+      }
+  
+      if (kindsSelected && kindsSelected.length > 0) {
+        constraints.push(where('kind', 'in', kindsSelected));
+      }
+  
+      const finalQuery = query(
+        initialQuery,
+        ...constraints,
+        where('userId', '==', userId),
+        orderBy('date', 'desc'),
+        limit(LIMIT_PER_PAGE)
+      );
+  
+      const snapshot = await getDocs(finalQuery);
+
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as TransactionType[];
+
+      setList(data);
+      setHasFilters(true);
+      if (snapshot.docs.length === 10) {
+        setLast(snapshot.docs[snapshot.docs.length - 1]);
+      } else {
+        setLast(null);
+      }
+      setListLoading(false);
+
+      return true;
+    } catch (error) {
+      console.error("Erro ao buscar documentos:", error);
       setListLoading(false);
       return false;
     }
@@ -263,11 +324,25 @@ export const TransactionProvider = ({ children }:{ children: React.ReactNode }):
     await getFinancialAnalysisData();
   };
 
+  const clearFilters = async () => {
+    setStartDate(null);
+    setEndDate(null);
+    setKindsSelected([]);
+    setHasFilters(false);
+    await refetchData();
+  }
+
   useEffect(() => {
-    getTransactions();
-    getBalance();
-    getFinancialAnalysisData();
-  }, [getTransactions, getBalance]);
+    if (!initialized.current) {
+      initialized.current = true;
+      getTransactions();
+      getBalance();
+      getFinancialAnalysisData();
+    }
+  }, [
+    getTransactions, getBalance,
+    getFinancialAnalysisData,
+  ]);
 
   const value = {
     list,
@@ -280,7 +355,16 @@ export const TransactionProvider = ({ children }:{ children: React.ReactNode }):
     updateTransaction,
     deleteTransaction,
     refetchData,
-    loadMoreTransactions
+    loadMoreTransactions,
+    onFilterTransactions,
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
+    kindsSelected,
+    setKindsSelected,
+    hasFilters,
+    clearFilters,
   };
 
   return (
