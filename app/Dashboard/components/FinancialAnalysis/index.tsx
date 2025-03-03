@@ -13,7 +13,7 @@ const FinancialAnalysis = () => {
   if (!analysisData.fixedIncome && !analysisData.variableIncome) return null;
 
   return (
-    <Styled.Container>
+    <Styled.Container scrollEnabled>
       <Styled.PixelBottomImage source={require('@/assets/images/icons/pixels.png')} />
       <Styled.PixelTopImage source={require('@/assets/images/icons/pixels.png')} />
 

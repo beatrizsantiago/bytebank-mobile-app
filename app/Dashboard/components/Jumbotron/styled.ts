@@ -1,12 +1,17 @@
 import styled from 'styled-components/native';
+import { Dimensions } from 'react-native';
+
+const { width } = Dimensions.get('window');
 
 const Container = styled.View`
   background-color: ${({ theme }) => theme.primary.main};
   padding: 40px;
   border-radius: 8px;
-  margin: 8px 0px;
+  margin: 16px;
   align-items: center;
   overflow: hidden;
+  width: ${width - 32}px;
+  height: 600px;
 `;
 
 const UserName = styled.Text`

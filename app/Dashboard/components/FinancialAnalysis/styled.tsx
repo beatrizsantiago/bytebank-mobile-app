@@ -1,12 +1,16 @@
 import styled from 'styled-components/native';
+import { Dimensions } from 'react-native';
 
-const Container = styled.View`
+const { width, height } = Dimensions.get('window');
+
+const Container = styled.ScrollView`
   background-color: ${({ theme }) => theme.gray.medium};
   padding: 16px;
   border-radius: 8px;
-  margin: 8px 0px;
-  align-items: center;
+  margin: 16px;
   overflow: hidden;
+  width: ${width - 32}px;
+  height: ${height - 175}px;
 `;
 
 const Title = styled.Text`
@@ -60,6 +64,7 @@ const ChartContainer = styled.View`
   padding: 16px;
   border-radius: 8px;
   align-items: center;
+  margin-bottom: 32px;
 `;
 
 const ChartTitle = styled.Text`
