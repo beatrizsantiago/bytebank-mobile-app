@@ -9,7 +9,7 @@
 ### 📌 Stack de Desenvolvimento
 
 - [expo](https://expo.dev/);
-- [styled-components] para estilização de componentes;
+- [styled-components](https://styled-components.com/) para estilização de componentes;
 - [firebase](https://firebase.google.com) para armazenamento de dados;
 - [date-fns](https://date-fns.org/) para lidar com datas;
 - [react-navigation](https://reactnavigation.org/) para roteamento da aplicação;
@@ -31,7 +31,7 @@
   - Na seção Suas Apps, clique em "Web" para registrar uma nova aplicação Web.
   - Ao finalizar o registro, o Firebase irá exibir o seu Firebase Config — um objeto contendo informações como apiKey, projectId, storageBucket, entre outros.
   - Cole o conteúdo da configuração dentro de ```/firebase/config.ts```:
-   ```
+   ```js
     // /firebase/config.ts
 
     const firebaseConfig = {
@@ -55,7 +55,7 @@
 <b>4. Configurar regras do Firestore</b>
 
   No Firestore, adicione as [regras de acesso](https://firebase.google.com/docs/firestore/security/get-started) abaixo (configuração disponível na aba de "Regras"):
-  ```
+  ```bash
     rules_version = '2';
     service cloud.firestore {
       match /databases/{database}/documents {
@@ -72,15 +72,49 @@
   - Para a utilização dessas consultas avançadas é necessário que a conta do firebase seja <b>nível Blaze</b>. É possível utilizar de forma gratuita com créditos disponibilizados pelo próprio firebase.
   - Este são os índices do projeto:
 
-  ```
-  | ID da coleção | Campos indexados | Escopo da consulta | Status |
-  |---|---|---|---|
-  | transactions | userId (Crescente), date (Crescente), __name__ (Crescente) | Coleta | Ativado |
-  | transactions | userId (Crescente), kind (Crescente), value (Crescente), __name__ (Crescente) | Coleta | Ativado |
-  | transactions | userId (Crescente), date (Decrescente), __name__ (Decrescente) | Coleta | Ativado |
-  | transactions | userId (Crescente), value (Crescente), __name__ (Crescente) | Coleta | Ativado |
-  | transactions | kind (Crescente), userId (Crescente), date (Decrescente), __name__ (Decrescente) | Coleta | Ativado |
-  ```
+  <table>
+    <thead>
+      <tr>
+        <th>ID da coleção</th>
+        <th>Campos indexados</th>
+        <th>Escopo da consulta</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>transactions</td>
+        <td>userId (Crescente), date (Crescente), __name__ (Crescente)</td>
+        <td>Coleta</td>
+        <td>Ativado</td>
+      </tr>
+      <tr>
+        <td>transactions</td>
+        <td>userId (Crescente), kind (Crescente), value (Crescente), __name__ (Crescente)</td>
+        <td>Coleta</td>
+        <td>Ativado</td>
+      </tr>
+      <tr>
+        <td>transactions</td>
+        <td>userId (Crescente), date (Decrescente), __name__ (Decrescente)</td>
+        <td>Coleta</td>
+        <td>Ativado</td>
+      </tr>
+      <tr>
+        <td>transactions</td>
+        <td>userId (Crescente), value (Crescente), __name__ (Crescente)</td>
+        <td>Coleta</td>
+        <td>Ativado</td>
+      </tr>
+      <tr>
+        <td>transactions</td>
+        <td>kind (Crescente), userId (Crescente), date (Decrescente), __name__ (Decrescente)</td>
+        <td>Coleta</td>
+        <td>Ativado</td>
+      </tr>
+    </tbody>
+  </table>
+
 
 ### 🎯 Getting Started
 
@@ -120,4 +154,4 @@ Iniciar projeto para ios:
 npm run ios
 ```
 
-Após os comandos acima, o emulador irá iniciar automaticamente e instalará o app Expo para utilizar o projeto.
+Após os comandos acima, o emulador será iniciado automaticamente e instalará o app Expo para utilizar o projeto.
