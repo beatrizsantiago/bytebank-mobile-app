@@ -101,6 +101,13 @@ const LineLabel = styled.Text`
   color: ${({ theme }) => theme.high.main};
 `;
 
+const EmptyLabel = styled.Text`
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  margin-top: 16px;
+`;
+
 export default {
   Container,
   Title,
@@ -115,4 +122,5 @@ export default {
   Line,
   Dot,
   LineLabel,
+  EmptyLabel,
 };

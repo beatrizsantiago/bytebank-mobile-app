@@ -10,8 +10,6 @@ const FinancialAnalysis = () => {
 
   if (!analysisData) return <ActivityIndicator />;
 
-  if (!analysisData.fixedIncome && !analysisData.variableIncome) return null;
-
   return (
     <Styled.Container scrollEnabled>
       <Styled.PixelBottomImage source={require('@/assets/images/icons/pixels.png')} />
@@ -33,18 +31,22 @@ const FinancialAnalysis = () => {
         Estatísticas
       </Styled.ChartTitle>
 
-      <Styled.ChartContainer>
-        <Styled.ChartBox>
-          <PieChart data={analysisData.chartData} />
-        </Styled.ChartBox>
+      {!analysisData.fixedIncome && !analysisData.variableIncome ? (
+        <Styled.EmptyLabel>Não há dados suficientes para análise</Styled.EmptyLabel>
+      ) : (
+        <Styled.ChartContainer>
+          <Styled.ChartBox>
+            <PieChart data={analysisData.chartData} />
+          </Styled.ChartBox>
 
-        {analysisData.chartData.map((slice, index) => (
-          <Styled.Line key={index}>
-            <Styled.Dot color={slice.color} />
-            <Styled.LineLabel>{slice.text}</Styled.LineLabel>
-          </Styled.Line>
-        ))}
-      </Styled.ChartContainer>
+          {analysisData.chartData.map((slice, index) => (
+            <Styled.Line key={index}>
+              <Styled.Dot color={slice.color} />
+              <Styled.LineLabel>{slice.text}</Styled.LineLabel>
+            </Styled.Line>
+          ))}
+        </Styled.ChartContainer>
+      )}
     </Styled.Container>
   );
 };
