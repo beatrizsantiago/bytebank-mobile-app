@@ -3,7 +3,8 @@ import { useFonts } from 'expo-font';
 import { ThemeProvider } from 'styled-components';
 import { createStackNavigator } from '@react-navigation/stack';
 import { AuthProvider, useAuthContext } from '@/context/Auth';
-import { useNavigation } from 'expo-router';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from '@/types/routes';
 import theme from '@/theme';
 import Header from '@/components/Header';
 
@@ -22,7 +23,7 @@ const Stack = createStackNavigator();
 const Routes = () => {
   const { isAuthenticated } = useAuthContext();
 
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   useEffect(() => {
     if (isAuthenticated) {

@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
-import { useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useAuthContext } from '@/context/Auth';
 import { TransactionProvider } from '@/context/Transactions';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from '@/types/routes';
 import BottomTabBar from '@/components/BottomTabBar';
 
 import DashboardScreen from './Dashboard';
@@ -16,7 +17,7 @@ const Tab = createBottomTabNavigator();
 const BottomTabs = () => {
   const { isAuthenticated } = useAuthContext();
 
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   useEffect(() => {
     if (!isAuthenticated) {

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Image, TouchableOpacity, Alert } from 'react-native';
 import { useAuthContext } from '@/context/Auth';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from '@/types/routes';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
 import PasswordInput from '@/components/PasswordInput';
@@ -11,7 +12,7 @@ import useUpdateUserName from '@/hooks/useUpdateUserName';
 import Styled from './styled'
 
 const Account = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const { logout, user } = useAuthContext();
 

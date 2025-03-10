@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Alert, Image } from 'react-native';
 import { useAuthContext } from '@/context/Auth';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from '@/types/routes';
 import Checkbox from 'expo-checkbox';
 import Input from '@/components/Input';
 import PasswordInput from '@/components/PasswordInput';
@@ -11,7 +12,7 @@ import Button from '@/components/Button';
 import Styled from './styled';
 
 const Registration = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const { signUp } = useAuthContext();
 

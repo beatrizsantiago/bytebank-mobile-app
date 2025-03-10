@@ -1,5 +1,6 @@
 import { Image, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from '@/types/routes';
 import { LinearGradient } from 'expo-linear-gradient';
 import Button from '@/components/Button';
 
@@ -8,7 +9,7 @@ import Footer from './component/Footer';
 import Features from './component/Features';
 
 const Start = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   return (
     <LinearGradient

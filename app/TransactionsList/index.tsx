@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from '@/types/routes';
 import { useTransactionContext } from '@/context/Transactions';
 import { formatDate } from '@/utils/format';
 import { KIND_LABEL } from '@/utils/transactionKinds';
-import Button from '@/components/Button';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import theme from '@/theme';
@@ -14,7 +14,7 @@ import StatementItem from './components/StatementItem';
 import Styled from './styled';
 
 const TransactionsList = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [ShowFiltersModal, setShowFiltersModal] = useState(false);
 
   const {

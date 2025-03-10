@@ -6,7 +6,8 @@ import { useTransactionContext } from '@/context/Transactions';
 import { TransactionType } from '@/context/Transactions/types';
 import { Alert, Image, TouchableOpacity } from 'react-native';
 import { KIND_LABEL } from '@/utils/transactionKinds';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from '@/types/routes';
 import Modal from '@/components/Modal';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import styled from 'styled-components/native';
@@ -19,7 +20,7 @@ type StatementItemProps = {
 const StatementItem = ({
   transaction,
 }:StatementItemProps) => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const [showAttach, setShowAttach] = useState(false);
 

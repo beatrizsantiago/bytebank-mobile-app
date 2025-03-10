@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Picker } from '@react-native-picker/picker';
 import { Alert, Image, TouchableOpacity } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from '@/types/routes';
 import { useTransactionContext } from '@/context/Transactions';
 import { KindType, TransactionType } from '@/context/Transactions/types';
 import { KIND_LIST } from '@/utils/transactionKinds';
@@ -16,7 +17,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import Styled from './styled';
 
 const TransactionForm = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute();
 
   const transactionData:TransactionType | undefined = route.params?.transaction;
